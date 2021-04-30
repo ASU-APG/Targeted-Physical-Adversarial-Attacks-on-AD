@@ -12,7 +12,7 @@ from gym.utils import colorize, seeding, EzPickle
 import pyglet
 from pyglet import gl
 
-import matplotlib.pyplot as plt
+from data.utils import scenarios_object_points
 
 # Easiest continuous control task to learn from pixels, a top-down racing environment.
 # Discrete control is reasonable in this environment as well, on/off discretization is
@@ -112,7 +112,7 @@ class CarRacingAdv(gym.Env, EzPickle):
         'video.frames_per_second': FPS
     }
 
-    def __init__(self, verbose=1):
+    def __init__(self, verbose=1, scenario='straight'):
         EzPickle.__init__(self)
         self.seed()
         self.contactListener_keepref = FrictionDetector(self)
@@ -125,6 +125,7 @@ class CarRacingAdv(gym.Env, EzPickle):
         self.car = None
         # change this flag to show/hide indicators at bottom
         self.show_indicators = True
+        self.scenario = scenario
         self.reward = 0.0
         self.prev_reward = 0.0
         self.verbose = verbose
@@ -306,100 +307,12 @@ class CarRacingAdv(gym.Env, EzPickle):
                 # setting red and white boundaries at turnings
                 self.road_poly.append(([b1_l, b1_r, b2_r, b2_l], (1, 1, 1) if i % 2 == 0 else (1, 0, 0)))
 
-            # # code to add object into environment (straight track) seed 2, t = 0 w.r.t pre policy
-            # if i == 9:
-            #     alpha1, beta1, x1, y1 = track[i - 1]
-            #     alpha2, beta2, x2, y2 = track[i + 2]
-            #     # On seeing the object shapes for multiple times,
-            #     # when x1 < 200 the object shape of square is not preserved
-            #     if x1 > 200:
-            #         PATCH_WIDTH = 35 / SCALE
-            #         # x1 - will put object on left and x1 + on right of track
-            #         patch1_l = (x1 - 4 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch1_r = (x1 - 2 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch2_l = (x1 - 4 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch2_r = (x1 - 2 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch_ver = [patch1_l, patch1_r, patch2_r, patch2_l]
-            #         patch_ver = [(195.01408570902476, -24.43932843113483), (213.74506774747402, -24.43932843113483),
-            #                      (213.74506774747402, -9.996894916319441), (195.01408570902476, -9.996894916319441)]
-            #         # to render in env. Uncomment below line to add show object in state
-            #         # self.road_poly.append((patch_ver, [255, 0, 255]))
-            #         # to return back in step
-            #         self.obj_poly.append((patch_ver, [255, 0, 255]))
-
-            # # code to add object into environment (straight track new) seed 2, t = 17 w.r.t pre policy
-            # if i == 21:
-            #     alpha1, beta1, x1, y1 = track[i - 1]
-            #     alpha2, beta2, x2, y2 = track[i + 2]
-            #     # On seeing the object shapes for multiple times,
-            #     # when x1 < 200 the object shape of square is not preserved
-            #     if x1 > -333:
-            #         PATCH_WIDTH = 75 / SCALE
-            #         # x1 - will put object on left and x1 + on right of track
-            #         patch1_l = (x1 - 4 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch1_r = (x1 - 2 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch2_l = (x1 - 4 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch2_r = (x1 - 2 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch_ver = [patch1_l, patch1_r, patch2_r, patch2_l]
-            #         patch_ver = [(145, 90), (130, 90),
-            #                      (130, 72), (145, 72)]  # right side of track
-            #         # to render in env. Uncomment below line to add show object in state
-            #         # self.road_poly.append((patch_ver, [255, 0, 255]))
-            #         # to return back in step
-            #         self.obj_poly.append((patch_ver, [255, 0, 255]))
-            #
-            #         patch_ver = [(127, 56), (112, 56),
-            #                      (112, 38), (127, 38)]  # left side of track
-            #         # to render in env. Uncomment below line to add show object in state
-            #         # self.road_poly.append((patch_ver, [255, 0, 255]))
-            #         # to return back in step
-            #         self.obj_poly.append((patch_ver, [255, 0, 255]))
-
-            # code to add object into environment (left turn) seed 2, t = 6 w.r.t pre policy
-            # if i == 18:
-            #     alpha1, beta1, x1, y1 = track[i - 1]
-            #     alpha2, beta2, x2, y2 = track[i + 2]
-            #     # On seeing the object shapes for multiple times,
-            #     # when x1 < 200 the object shape of square is not preserved
-            #     if x1 > 200:
-            #         PATCH_WIDTH = 35 / SCALE
-            #         # x1 - will put object on left and x1 + on right of track
-            #         patch1_l = (x1 + 4 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch1_r = (x1 + 2 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch2_l = (x1 + 4 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch2_r = (x1 + 2 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch_ver = [patch1_l, patch1_r, patch2_r, patch2_l]
-            #         # patch_ver = [(252.1328294371665, 6.887972113311335), (237.45142478132817, 6.887972113311335),
-            #         #              (237.45142478132817, 17.734467537077343), (252.1328294371665, 17.734467537077343)]
-            #         patch_ver = [(252.1328294371665, 1.887972113311335), (234.45142478132817, 1.887972113311335),
-            #         (234.45142478132817, 15.734467537077343), (252.1328294371665, 15.734467537077343)]
-            #         patch_ver = [(255.1328294371665, -5.887972113311335), (233.45142478132817, -5.887972113311335),
-            #         (233.45142478132817, 15.734467537077343), (255.1328294371665, 15.734467537077343)]
-            #         # to render in env. Uncomment below line to add show object in state
-            #         # self.road_poly.append((patch_ver, [255, 0, 255]))
-            #         # to return back in step
-            #         self.obj_poly.append((patch_ver, [255, 0, 255]))
-
-            # # code to add object into environment (right turn) seed 3, t = 56 w.r.t pre policy
-            # if i == 190:
-            #     alpha1, beta1, x1, y1 = track[i - 1]
-            #     alpha2, beta2, x2, y2 = track[i + 2]
-            #     # On seeing the object shapes for multiple times,
-            #     # when x1 < 200 the object shape of square is not preserved
-            #     if x1 > -333:
-            #         PATCH_WIDTH = 35 / SCALE
-            #         # x1 - will put object on left and x1 + on right of track
-            #         patch1_l = (x1 - 2 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch1_r = (x1 - 1 * PATCH_WIDTH / math.cos(beta1), y1)
-            #         patch2_l = (x1 - 2 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch2_r = (x1 - 1 * PATCH_WIDTH / math.cos(beta1), y2)
-            #         patch_ver = [patch1_l, patch1_r, patch2_r, patch2_l]
-            #         patch_ver = [(18.171737744295465, -28.644126878945876), (32.663034952274376, -28.644126878945876),
-            #                      (32.663034952274376, -13.58142654032553), (18.171737744295465, -13.58142654032553)]
-            #         # to render in env. Uncomment below line to add show object in state
-            #         # self.road_poly.append((patch_ver, [255, 0, 255]))
-            #         # to return back in step
-            #         self.obj_poly.append((patch_ver, [255, 0, 255]))
+            # addition of object to environment
+            patch_ver = scenarios_object_points[self.scenario]
+            # to render in env. Uncomment below line to add show object in state
+            # self.road_poly.append((patch_ver, [255, 0, 255]))
+            # to return back in step
+            self.obj_poly.append((patch_ver, [255, 0, 255]))
 
         self.track = track
         return True
@@ -419,7 +332,10 @@ class CarRacingAdv(gym.Env, EzPickle):
                 break
             if self.verbose == 1:
                 print("retry to generate track (normal if there are not many of this messages)")
-        self.car = Car(self.world, *self.track[178][1:4])  # starting 178 for scenario 3
+        track_start = 0
+        if self.scenario == 'right_turn':
+            track_start = 178  # starting 178 for right track scenario
+        self.car = Car(self.world, *self.track[track_start][1:4])
 
         return self.step(None)[0]
 
