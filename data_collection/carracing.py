@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 import gym
-from data.utils import scenarios_seeds, scenarios_start_pos, sequence_length
+from data_collection.utils import scenarios_seeds, scenarios_start_pos, sequence_length
 from policy.agents.agent import Agent
 
 parser = argparse.ArgumentParser()
