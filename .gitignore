@@ -136,3 +136,6 @@ dmypy.json
 
 # datasets files
 datasets
+
+# weight files
+dynamics_model/params
