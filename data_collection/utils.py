@@ -12,4 +12,4 @@ scenarios_object_points = {'straight': [(145, 90), (130, 90), (130, 72), (145, 7
 # seeds
 scenarios_seeds = {'straight': 2, 'left_turn': 2, 'right_turn': 3}
 # start positions
-scenarios_start_pos = {'straight': 17, 'left_turn': 6, 'right_turn': 6}
+scenarios_start_pos = {'straight': 17, 'left_turn': 8, 'right_turn': 8}
