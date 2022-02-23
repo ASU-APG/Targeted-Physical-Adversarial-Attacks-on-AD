@@ -33,7 +33,7 @@ parser.add_argument('--perturbs-dir', type=str, default='attacks/perturbations',
 parser.add_argument('--adv-bound', type=float, default=0.9, help="adversarial bound")
 parser.add_argument('--unroll-length', type=int, default=25, help="unroll length for attack")
 parser.add_argument('--epochs', type=int, default=1000, help="number of epochs to optimize")
-parser.add_argument('--lr', type=float, default=0.005, help="number of epochs to optimize")
+parser.add_argument('--lr', type=float, default=0.005, help="learning rate for optimization")
 parser.add_argument('--render', action='store_true', help='render the environment')
 parser.add_argument('--no-load-perturb', action='store_true', help='doesnt load existing perturbation')
 args = parser.parse_args()
