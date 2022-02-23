@@ -7,11 +7,11 @@ class Env():
     Test environment wrapper for CarRacingAdv
     """
 
-    def __init__(self, seed, img_stack, action_repeat):
+    def __init__(self, seed, img_stack, action_repeat, scenario='straight'):
         self.seed = seed
         self.img_stack = img_stack
         self.action_repeat = action_repeat
-        self.env = gym.make('CarRacingAdv-v0')
+        self.env = gym.make('CarRacingAdv-v0', scenario=scenario)
         if seed is not None:
             self.env.seed(seed)
         self.reward_threshold = self.env.spec.reward_threshold
@@ -27,7 +27,7 @@ class Env():
         img_gray = self.rgb2gray(img_rgb)
         self.stack = [img_gray] * self.img_stack
         self.adv_stack = [np.zeros_like(img_gray)] * self.img_stack
-        return np.array(self.stack)
+        return np.array(self.stack), img_rgb
 
     def step(self, action):
         total_reward = 0
@@ -51,7 +51,7 @@ class Env():
         self.adv_stack.append(self.rgb2gray(adv))
         assert len(self.stack) == self.img_stack
         self.stack = [img_gray] * self.img_stack
-        return np.array(self.stack), total_reward, done, die, np.array(self.adv_stack), car_props, obj_poly
+        return np.array(self.stack), total_reward, done, die, np.array(self.adv_stack), car_props, obj_poly, img_rgb
 
     def render(self, *arg):
         self.env.render(*arg)

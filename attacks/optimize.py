@@ -1,6 +1,5 @@
 import argparse
 import warnings
-from os import mkdir
 from os.path import exists
 
 import kornia
@@ -17,7 +16,7 @@ from dynamics_model.models.mdrnn import MDRNNCell
 from dynamics_model.models.vae import VAE
 from gym.envs.box2d.car_racing_adv import WINDOW_W, WINDOW_H, STATE_W, STATE_H, PLAYFIELD
 from policy.networks.actor_critic import A2CNet
-from utils import PERTURBATION_SIZE
+from utils import PERTURBATION_SIZE, get_target_state, get_perturbation_file_path, save_loss_to_file
 
 warnings.filterwarnings("ignore")
 
@@ -74,18 +73,6 @@ def load_nets():
     return vae, decoder, rnn, a2c
 
 
-def get_target_state():
-    target_state_file = f'{args.targets_dir}/scenario_{args.scenario}.npy'
-    return np.load(target_state_file)
-
-
-def get_perturbation_file_path(T, eps):
-    perturbation_dir = f'{args.perturbs_dir}/scenario_{args.scenario}'
-    if not exists(perturbation_dir):
-        mkdir(perturbation_dir)
-    return f'{perturbation_dir}/perturb_T_{T}_eps_{eps}.npz'
-
-
 def main():
     # load networks
     vae, decoder, rnn, a2c = load_nets()
@@ -96,7 +83,7 @@ def main():
     epochs = args.epochs
 
     # load target state
-    s_t = get_target_state()
+    s_t = get_target_state(args.targets_dir, args.scenario)
     s_t = torch.repeat_interleave(torch.tensor(s_t[3], device=device)
                                   .reshape(1, 96, 96), 4, dim=0).float().reshape(1, 4, 96, 96)
 
@@ -107,7 +94,7 @@ def main():
     d_s.data = d_s.data.clamp_(-adv_bound, adv_bound)
     best_loss = float('inf')
     # perturbation file name to be saved
-    perturb_file = get_perturbation_file_path(unroll_length, adv_bound)
+    perturb_file = get_perturbation_file_path(args.perturbs_dir, args.scenario, unroll_length, adv_bound)
 
     # load already existing perturbation if we want. Useful for optimizing with breaks
     if not args.no_load_perturb and exists(perturb_file):
@@ -132,8 +119,6 @@ def main():
     if args.scenario == 'straight':
         start_pos -= 1  # to be even more precise
     env_seed = scenarios_seeds[args.scenario]
-
-    print(obj_true_loc, start_pos, env_seed)
 
     torch.autograd.set_detect_anomaly(True)  # not sure why this is here. But still keeping
 
@@ -336,6 +321,7 @@ def main():
             best_loss = t_loss
             print(f'best d_s found at epoch {i + 1}. Saving ...')
             np.savez_compressed(perturb_file, d_s.detach().cpu().numpy())
+            save_loss_to_file(t_loss.item() / unroll_length, args.perturbs_dir, args.scenario, unroll_length, adv_bound)
 
 
 if __name__ == '__main__':
