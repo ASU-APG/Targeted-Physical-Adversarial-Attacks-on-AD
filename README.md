@@ -17,7 +17,8 @@ The end to end implementation of paper follows a series of below steps
 
 ### 1. Policy
 
-TODO: Write about policy
+We used a policy obtained using Actor-Critic algorithm for which the pretrained agent is taken from
+this [repo](https://github.com/xtma/pytorch_car_caring) and modified a bit for our use.
 
 ### 2. Data Collection
 
@@ -50,7 +51,22 @@ wanted.
 
 ### 3. Dynamics model
 
-TODO: Write about dynamics model
+Dynamics model is trained using two models (VAE and MDRNN)
+
+#### VAE
+
+```commandline
+python dynamics_model/trainvae.py --dataset scenario_straight
+```
+
+#### MDRNN
+
+```commandline
+python dynamics_model/trainmdrnn.py --dataset scenario_straight
+```
+
+**NOTE**: Change `--dataset` argument to `scenario_left_turn` and `scenario_right_turn` for other two driving scenarios
+respectively.
 
 ### 4. Generate Adversarial Perturbations
 
@@ -86,3 +102,11 @@ python attacks/robustness.py --scenario straight
 If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
 above command runs the robustness experiment shown in the paper. Add optional argument `--save` to save the robustness
 heatmap in `results` folder. We already provided the robustness result based on our perturbations in `results` folder.
+
+### Acknowledgement
+
+We would like to thank developers of below open source code for providing policy and dynamics model implementations
+which are used in our code.
+
+- Policy - https://github.com/xtma/pytorch_car_caring
+- Dynamics model - https://github.com/ctallec/world-models
