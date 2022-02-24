@@ -21,7 +21,32 @@ TODO: Write about policy
 
 ### 2. Data Collection
 
-TODO: Write about data collection
+We collect data by running the agent with pretrained + noise policy as explained in the paper. This is done using below
+commands for all three driving scenarios.
+
+#### Scenario - Straight
+
+```commandline
+python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario straight
+python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario straight
+```
+
+#### Scenario - Left Turn
+
+```commandline
+python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario left_turn
+python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario left_turn
+```
+
+#### Scenario - Right Turn
+
+```commandline
+python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario right_turn
+python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario right_turn
+```
+
+**NOTE**: The data collection scripts provide multiple options to get more datasets with different policy types if
+wanted.
 
 ### 3. Dynamics model
 
