@@ -1,6 +1,8 @@
 import argparse
-from os import mkdir
+from os import mkdir, getcwd
 from os.path import exists
+import sys
+sys.path.append(getcwd())
 
 import kornia
 import matplotlib
