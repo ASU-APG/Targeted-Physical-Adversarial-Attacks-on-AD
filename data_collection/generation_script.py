@@ -15,8 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--scenario', type=str, default='straight', help='Select driving scenario')
 parser.add_argument('--same-track', action='store_true', help="Generates same track for every rollout if specified")
 parser.add_argument('--rollouts', type=int, help="Total number of rollouts.")
-parser.add_argument('--file', type=str, default="data.carracing", help="File which need to run parallely")
-parser.add_argument('--threads', type=int, help="Number of threads")
+parser.add_argument('--file', type=str, default="data_collection.carracing", help="File which need to run parallely")
+parser.add_argument('--threads', type=int, default=1, help="Number of threads")
 parser.add_argument('--rootdir', type=str, help="Directory to store rollout ")
 parser.add_argument('--policy', type=str, choices=['pre', 'pre_noise', 'random_1', 'random_2'],
                     help="Directory to store rollout directories of each thread",

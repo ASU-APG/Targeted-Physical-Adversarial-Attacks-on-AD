@@ -128,11 +128,12 @@ else:
 vae_dir = join(args.logdir, vae_name)
 if not exists(vae_dir):
     mkdir(vae_dir)
+if not exists(join(vae_dir, 'samples')):
     mkdir(join(vae_dir, 'samples'))
 
 reload_file = join(vae_dir, 'best.tar')
 if not args.noreload and exists(reload_file):
-    state = torch.load(reload_file)
+    state = torch.load(reload_file, map_location=lambda storage, location: storage)
     print("Reloading model at epoch {}, with test error {}".format(state['epoch'], state['precision']))
     model.load_state_dict(state['state_dict'])
     optimizer.load_state_dict(state['optimizer'])

@@ -43,7 +43,7 @@ dataset = args.dataset
 # Loading VAE
 vae_file = join(args.logdir, 'vae_' + args.dataset, 'best.tar')
 assert exists(vae_file), "No trained VAE in the logdir..."
-state = torch.load(vae_file, map_location=device)
+state = torch.load(vae_file, map_location=lambda storage, location: storage)
 print("Loading VAE at epoch {} "
       "with test error {}".format(
           state['epoch'], state['precision']))
@@ -66,7 +66,7 @@ earlystopping = EarlyStopping('min', patience=30)
 
 
 if exists(rnn_file) and not args.noreload:
-    rnn_state = torch.load(rnn_file)
+    rnn_state = torch.load(rnn_file, map_location=lambda storage, location: storage)
     print("Loading MDRNN at epoch {} "
           "with test error {}".format(
               rnn_state["epoch"], rnn_state["precision"]))
