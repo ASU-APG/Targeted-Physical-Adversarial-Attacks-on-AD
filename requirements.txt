@@ -19,7 +19,6 @@ opencv-python==4.2.0.32
 pandas==1.0.1
 Pillow==7.0.0
 protobuf==3.11.3
-pyglet==1.5.11
 pyparsing==2.4.6
 python-dateutil==2.8.1
 pytz==2019.3
@@ -30,7 +29,7 @@ six==1.14.0
 tensorboard==1.15.0
 torch==1.7.1
 torchfile==0.1.0
-torchvision==0.5.0
+torchvision
 tornado==6.0.3
 tqdm==4.60.0
 typing-extensions==3.7.4.3
