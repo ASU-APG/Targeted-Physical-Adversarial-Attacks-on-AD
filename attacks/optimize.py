@@ -2,8 +2,6 @@ import argparse
 import warnings
 from os import getcwd
 from os.path import exists
-import sys
-sys.path.append(getcwd())
 
 import kornia
 import numpy as np

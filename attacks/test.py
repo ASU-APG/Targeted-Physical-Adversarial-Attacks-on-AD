@@ -1,8 +1,6 @@
 import argparse
 from os import mkdir, getcwd
 from os.path import exists
-import sys
-sys.path.append(getcwd())
 
 import kornia
 import matplotlib
@@ -18,20 +16,28 @@ from policy.env.env_adv import Env
 from utils import PERTURBATION_SIZE, get_perturbation_file_path, get_target_state, \
     create_animation_video, read_loss_from_file
 
-parser = argparse.ArgumentParser(description='Test different scenarios of physical adversarial attacks on CarRacing-v0')
-parser.add_argument('--scenario', type=str, default='straight', help='select driving scenario')
-parser.add_argument('--action-repeat', type=int, default=1, metavar='N', help='repeat action in N frames (default: 1)')
-parser.add_argument('--img-stack', type=int, default=4, metavar='N', help='stack N image in a state (default: 4)')
-parser.add_argument('--unroll-length', type=int, default=25, help='Number of timesteps to attack')
-parser.add_argument('--adv-bound', type=float, default=0.9, help='Adversarial bound for perturbation')
+parser = argparse.ArgumentParser(
+    description='Test different scenarios of physical adversarial attacks on CarRacing-v0')
+parser.add_argument('--scenario', type=str,
+                    default='straight', help='select driving scenario')
+parser.add_argument('--action-repeat', type=int, default=1,
+                    metavar='N', help='repeat action in N frames (default: 1)')
+parser.add_argument('--img-stack', type=int, default=4,
+                    metavar='N', help='stack N image in a state (default: 4)')
+parser.add_argument('--unroll-length', type=int, default=25,
+                    help='Number of timesteps to attack')
+parser.add_argument('--adv-bound', type=float, default=0.9,
+                    help='Adversarial bound for perturbation')
 parser.add_argument('--targets-dir', type=str, default='attacks/targets',
                     help="directory where target states exist")
 parser.add_argument('--perturbs-dir', type=str, default='attacks/perturbations',
                     help="directory where perturbations are saved")
 parser.add_argument('--results-dir', type=str, default='results',
                     help="directory where results need to be saved")
-parser.add_argument('--render', action='store_true', help='render the environment')
-parser.add_argument('--save', action='store_true', help='save the results if specified')
+parser.add_argument('--render', action='store_true',
+                    help='render the environment')
+parser.add_argument('--save', action='store_true',
+                    help='save the results if specified')
 args = parser.parse_args()
 
 # cuda and seeds
@@ -73,12 +79,15 @@ def get_obj_params(car_props, object_true_loc):
     for idx in range(len(object_true_loc)):
         tmp_x = object_true_loc[idx][0] - x
         tmp_y = object_true_loc[idx][1] - y
-        obj_x = zoom * (tmp_x * torch.cos(angle) - tmp_y * torch.sin(angle)) / WINDOW_W * STATE_W + STATE_W / 2
-        obj_y = zoom * (tmp_x * torch.sin(angle) + tmp_y * torch.cos(angle)) / WINDOW_H * STATE_H + STATE_H / 4
+        obj_x = zoom * (tmp_x * torch.cos(angle) - tmp_y *
+                        torch.sin(angle)) / WINDOW_W * STATE_W + STATE_W / 2
+        obj_y = zoom * (tmp_x * torch.sin(angle) + tmp_y *
+                        torch.cos(angle)) / WINDOW_H * STATE_H + STATE_H / 4
         if idx == 0:
             obj_state_params = torch.cat([obj_x, obj_y], dim=1)
         else:
-            obj_state_params = torch.cat([obj_state_params, torch.cat([obj_x, obj_y], dim=1)])
+            obj_state_params = torch.cat(
+                [obj_state_params, torch.cat([obj_x, obj_y], dim=1)])
 
     obj_state_params -= torch.tensor([0., 96.], device=device)
     obj_state_params[:, 1] = -obj_state_params[:, 1]
@@ -114,7 +123,8 @@ def run_env_no_object(env, agent, start_pos, T):
         if 1 <= i <= T:
             actions.append(action)
             reward_subset += reward
-            (x, y), angle, (linVelx, linVely), omega = car_props[0], car_props[1], car_props[2], car_props[3]
+            (x, y), angle, (linVelx,
+                            linVely), omega = car_props[0], car_props[1], car_props[2], car_props[3]
             agent_states.append([x, y, angle, linVelx, linVely])
         score += reward
         state = state_
@@ -146,14 +156,18 @@ def run_env(env, agent, d_s, start_pos, T):
             if i == T:
                 tT = state * (1 - mask_w_rep_np) + mask_w_rep_np * mask_rep_np
                 tT_rgb = state_rgb / 255. * (1 - np.moveaxis(mask_w_rep_np[1:], 0, -1)) + \
-                         np.moveaxis(mask_w_rep_np[1:], 0, -1) * np.moveaxis(mask_rep_np[1:], 0, -1)
+                    np.moveaxis(mask_w_rep_np[1:], 0, -1) * \
+                    np.moveaxis(mask_rep_np[1:], 0, -1)
                 break
             if i < T:
                 if i == 0:
-                    t0 = state * (1 - mask_w_rep_np) + mask_w_rep_np * mask_rep_np
+                    t0 = state * (1 - mask_w_rep_np) + \
+                        mask_w_rep_np * mask_rep_np
                     t0_rgb = state_rgb / 255. * (1 - np.moveaxis(mask_w_rep_np[1:], 0, -1)) + \
-                             np.moveaxis(mask_w_rep_np[1:], 0, -1) * np.moveaxis(mask_rep_np[1:], 0, -1)
-                state = state * (1 - mask_w_rep_np) + mask_w_rep_np * mask_rep_np
+                        np.moveaxis(
+                            mask_w_rep_np[1:], 0, -1) * np.moveaxis(mask_rep_np[1:], 0, -1)
+                state = state * (1 - mask_w_rep_np) + \
+                    mask_w_rep_np * mask_rep_np
                 i += 1
                 state.clip(-1, 0.9921875)
             states_list.append(state)
@@ -161,24 +175,33 @@ def run_env(env, agent, d_s, start_pos, T):
             env.render()
         action = agent.select_action(state, device)
         action = action * np.array([2., 1., 1.]) + np.array([-1., 0., 0.])
-        state_, reward, done, die, _, car_props, obj_poly, state_rgb = env.step(action)
+        state_, reward, done, die, _, car_props, obj_poly, state_rgb = env.step(
+            action)
         if 1 <= i <= T:
             actions.append(action)
             reward_subset += reward
-            (x, y), angle, (linVelx, linVely), omega = car_props[0], car_props[1], car_props[2], car_props[3]
+            (x, y), angle, (linVelx,
+                            linVely), omega = car_props[0], car_props[1], car_props[2], car_props[3]
             agent_states.append([x, y, angle, linVelx, linVely])
 
-        (x, y), angle, (linVelx, linVely) = car_props[0], car_props[1], car_props[2]
-        obj_state_params = get_obj_params(torch.tensor([x, y, angle, linVelx, linVely]), obj_true_loc)
+        (x, y), angle, (linVelx,
+                        linVely) = car_props[0], car_props[1], car_props[2]
+        obj_state_params = get_obj_params(torch.tensor(
+            [x, y, angle, linVelx, linVely]), obj_true_loc)
 
-        points_src = torch.tensor([[[0., 0.], [d_s_size_y, 0.], [d_s_size_y, d_s_size_x], [0., d_s_size_x]]])
-        M: torch.tensor = kornia.get_perspective_transform(points_src, obj_state_params.unsqueeze(0))
-        mask: torch.tensor = kornia.warp_affine(torch.tensor(perturb.copy()), M[:, :2, :], dsize=(96, 96))
+        points_src = torch.tensor(
+            [[[0., 0.], [d_s_size_y, 0.], [d_s_size_y, d_s_size_x], [0., d_s_size_x]]])
+        M: torch.tensor = kornia.get_perspective_transform(
+            points_src, obj_state_params.unsqueeze(0))
+        mask: torch.tensor = kornia.warp_affine(
+            torch.tensor(perturb.copy()), M[:, :2, :], dsize=(96, 96))
         mask_rep = torch.repeat_interleave(mask, 4, dim=0).reshape(4, 96, 96)
         mask_rep_np = mask_rep.detach().numpy()
 
-        mask_w: torch.tensor = kornia.warp_affine(torch.ones(*perturb.shape), M[:, :2, :], dsize=(96, 96))
-        mask_w_rep = torch.repeat_interleave(mask_w, 4, dim=0).reshape(4, 96, 96)
+        mask_w: torch.tensor = kornia.warp_affine(
+            torch.ones(*perturb.shape), M[:, :2, :], dsize=(96, 96))
+        mask_w_rep = torch.repeat_interleave(
+            mask_w, 4, dim=0).reshape(4, 96, 96)
         mask_w_rep_np = mask_w_rep.detach().numpy()
 
         score += reward
@@ -194,7 +217,8 @@ def run_env_multi_random(env, agent, n_runs, start_pos, T):
     agent_states_multi = []
 
     for i_ep in range(n_runs):
-        perturb = np.random.normal(0, 0.3, size=(1, 1, d_s_size_x, d_s_size_y)).astype(np.float32)
+        perturb = np.random.normal(0, 0.3, size=(
+            1, 1, d_s_size_x, d_s_size_y)).astype(np.float32)
         state, _ = env.reset()
         mask_rep_np = np.zeros_like(state)
         mask_w_rep_np = np.zeros_like(state)
@@ -204,34 +228,47 @@ def run_env_multi_random(env, agent, n_runs, start_pos, T):
         for t in range(1000):
             if t >= start_pos:
                 if i == T:
-                    tT = state * (1 - mask_w_rep_np) + mask_w_rep_np * mask_rep_np
+                    tT = state * (1 - mask_w_rep_np) + \
+                        mask_w_rep_np * mask_rep_np
                     break
                 if i < T:
                     if i == 0:
-                        t0 = state * (1 - mask_w_rep_np) + mask_w_rep_np * mask_rep_np
-                    state = state * (1 - mask_w_rep_np) + mask_w_rep_np * mask_rep_np
+                        t0 = state * (1 - mask_w_rep_np) + \
+                            mask_w_rep_np * mask_rep_np
+                    state = state * (1 - mask_w_rep_np) + \
+                        mask_w_rep_np * mask_rep_np
                     i += 1
                     state.clip(-1, 0.9921875)
             if args.render:
                 env.render()
             action = agent.select_action(state, device)
             action = action * np.array([2., 1., 1.]) + np.array([-1., 0., 0.])
-            state_, reward, done, die, _, car_props, obj_poly, _ = env.step(action)
+            state_, reward, done, die, _, car_props, obj_poly, _ = env.step(
+                action)
             if 1 <= i <= T:
-                (x, y), angle, (linVelx, linVely), omega = car_props[0], car_props[1], car_props[2], car_props[3]
+                (x, y), angle, (linVelx,
+                                linVely), omega = car_props[0], car_props[1], car_props[2], car_props[3]
                 agent_states.append([x, y, angle, linVelx, linVely])
 
-            (x, y), angle, (linVelx, linVely) = car_props[0], car_props[1], car_props[2]
-            obj_state_params = get_obj_params(torch.tensor([x, y, angle, linVelx, linVely]), obj_true_loc)
+            (x, y), angle, (linVelx,
+                            linVely) = car_props[0], car_props[1], car_props[2]
+            obj_state_params = get_obj_params(torch.tensor(
+                [x, y, angle, linVelx, linVely]), obj_true_loc)
 
-            points_src = torch.tensor([[[0., 0.], [d_s_size_y, 0.], [d_s_size_y, d_s_size_x], [0., d_s_size_x]]])
-            M: torch.tensor = kornia.get_perspective_transform(points_src, obj_state_params.unsqueeze(0))
-            mask: torch.tensor = kornia.warp_affine(torch.tensor(perturb.copy()), M[:, :2, :], dsize=(96, 96))
-            mask_rep = torch.repeat_interleave(mask, 4, dim=0).reshape(4, 96, 96)
+            points_src = torch.tensor(
+                [[[0., 0.], [d_s_size_y, 0.], [d_s_size_y, d_s_size_x], [0., d_s_size_x]]])
+            M: torch.tensor = kornia.get_perspective_transform(
+                points_src, obj_state_params.unsqueeze(0))
+            mask: torch.tensor = kornia.warp_affine(
+                torch.tensor(perturb.copy()), M[:, :2, :], dsize=(96, 96))
+            mask_rep = torch.repeat_interleave(
+                mask, 4, dim=0).reshape(4, 96, 96)
             mask_rep_np = mask_rep.detach().numpy()
 
-            mask_w: torch.tensor = kornia.warp_affine(torch.ones(*perturb.shape), M[:, :2, :], dsize=(96, 96))
-            mask_w_rep = torch.repeat_interleave(mask_w, 4, dim=0).reshape(4, 96, 96)
+            mask_w: torch.tensor = kornia.warp_affine(
+                torch.ones(*perturb.shape), M[:, :2, :], dsize=(96, 96))
+            mask_w_rep = torch.repeat_interleave(
+                mask_w, 4, dim=0).reshape(4, 96, 96)
             mask_w_rep_np = mask_w_rep.detach().numpy()
 
             score += reward
@@ -297,7 +334,8 @@ def plot_actions(actions_list, names, T, eps, save):
     plt.grid()
     plt.show()
     if save:
-        plt.savefig(f'{save_dir}/steer_T_{T}_eps_{eps}.png', bbox_inches='tight')
+        plt.savefig(f'{save_dir}/steer_T_{T}_eps_{eps}.png',
+                    bbox_inches='tight')
     plt.close()
 
 
@@ -313,7 +351,8 @@ def plot_trajectories(a_state_list, names, std, T, eps, save):
         from matplotlib import transforms
         rot = transforms.Affine2D().rotate(-a_states[0][2])
         # plt.rcParams['axes.facecolor'] = 'green'
-        plt.plot(positions[:, 0], positions[:, 1], colors[idx], transform=rot + base, lw=4)
+        plt.plot(positions[:, 0], positions[:, 1],
+                 colors[idx], transform=rot + base, lw=4)
         # The below does a std curve about mean. But negligible to draw
         # if idx == 1:
         #     plt.plot(positions[:, 0] - std[:, 0], positions[:, 1] - std[:, 1], colors[idx].replace('--', ':'),
@@ -321,7 +360,8 @@ def plot_trajectories(a_state_list, names, std, T, eps, save):
         #     plt.plot(positions[:, 0] + std[:, 0], positions[:, 1] + std[:, 1], colors[idx].replace('--', ':'),
         #              transform=rot + base, lw=1, label='_nolegend_')
         if idx == 0:
-            plt.scatter(positions[:1, 0], positions[:1, 1], c='black', s=200, transform=rot + base)
+            plt.scatter(positions[:1, 0], positions[:1, 1],
+                        c='black', s=200, transform=rot + base)
         if idx == 2:
             plt.scatter(positions[-1:, 0], positions[-1:, 1], c=colors[idx].replace('--', ''), marker='*', s=200,
                         transform=rot + base)
@@ -332,11 +372,13 @@ def plot_trajectories(a_state_list, names, std, T, eps, save):
         plt.xlabel('X Position', fontsize=20)
         plt.ylabel('Y Position', fontsize=20)
         plt.xlim(-26, 15)
-    plt.legend(names + ['Start', 'Target'], loc='lower left', prop={'size': 18})
+    plt.legend(names + ['Start', 'Target'],
+               loc='lower left', prop={'size': 18})
     plt.grid(alpha=0.5)
     plt.show()
     if save:
-        plt.savefig(f'{save_dir}/trajectory_T_{T}_eps_{eps}.png', bbox_inches='tight')
+        plt.savefig(f'{save_dir}/trajectory_T_{T}_eps_{eps}.png',
+                    bbox_inches='tight')
     plt.close()
 
 
@@ -345,14 +387,17 @@ def main():
     T = args.unroll_length
     eps = args.adv_bound
     # get random and adversarial perturbation
-    rand_d_s = np.random.uniform(low=-eps, high=eps, size=(1, 1, d_s_size_x, d_s_size_y)).astype(np.float32)
+    rand_d_s = np.random.uniform(
+        low=-eps, high=eps, size=(1, 1, d_s_size_x, d_s_size_y)).astype(np.float32)
     # perturbation file name to be fetched
-    perturb_file = get_perturbation_file_path(args.perturbs_dir, args.scenario, T, eps)
+    perturb_file = get_perturbation_file_path(
+        args.perturbs_dir, args.scenario, T, eps)
     d_s = np.load(perturb_file)['arr_0']
     # get target state
     target = get_target_state(args.targets_dir, args.scenario)
     # start position for each scenario
-    start_pos = scenarios_start_pos[args.scenario] * 8  # 8 accounts for policy action repeat
+    # 8 accounts for policy action repeat
+    start_pos = scenarios_start_pos[args.scenario] * 8
     if args.scenario == 'straight':
         start_pos -= 1  # to be even more precise
     # environment seeds for each scenario
@@ -367,41 +412,53 @@ def main():
 
     # show or save target state
     plot_images([target], ['target'], args.save)
-    print(f'Target state showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    print(
+        f'Target state showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # run policy on env without object
-    s_0, s_t, a_no_obj, rew_no_obj, a_state_no_obj, states_no_obj = run_env_no_object(env, agent, start_pos, T)
+    s_0, s_t, a_no_obj, rew_no_obj, a_state_no_obj, states_no_obj = run_env_no_object(
+        env, agent, start_pos, T)
     plot_images([s_0, s_t], ['start_no_obj', 'end_no_obj'], args.save)
-    print(f'Plot without object showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    print(
+        f'Plot without object showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # run policy on env in the presence of attack
     attack_s_0, attack_s_t, a_attack, rew_attack, a_states_attack, states_attack, s_rgb = run_env(env, agent, d_s,
                                                                                                   start_pos, T)
-    plot_images([attack_s_0, attack_s_t], [f'start_attack_T_{T}_eps_{eps}', f'end_attack_T_{T}_eps_{eps}'], args.save)
-    print(f'Plot with adversarial object showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    plot_images([attack_s_0, attack_s_t], [
+                f'start_attack_T_{T}_eps_{eps}', f'end_attack_T_{T}_eps_{eps}'], args.save)
+    print(
+        f'Plot with adversarial object showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # plot intro image
     plot_intro_image(s_rgb, f'intro_T_{T}_eps_{eps}', args.save)
-    print(f'Intro image showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    print(
+        f'Intro image showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # animate video
     create_animation_video(save_dir, states_no_obj, states_attack, T, eps)
-    print(f'Animation video saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    print(
+        f'Animation video saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # run policy on env in the presence of random noise
     # This is to show images with random baseline
-    rand_s_0, rand_s_t, a_rand, rew_rand, a_states_rand, states_random, _ = run_env(env, agent, rand_d_s, start_pos, T)
-    plot_images([rand_s_0, rand_s_t], ['start_random', 'end_random'], args.save)
-    print(f'Plot with random perturbation showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    rand_s_0, rand_s_t, a_rand, rew_rand, a_states_rand, states_random, _ = run_env(
+        env, agent, rand_d_s, start_pos, T)
+    plot_images([rand_s_0, rand_s_t], [
+                'start_random', 'end_random'], args.save)
+    print(
+        f'Plot with random perturbation showed/saved for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # run multiple random and get average
     # This is to show trajectories based on mean of multiple random baseline
-    a_states_rand_mean, a_states_rand_std = run_env_multi_random(env, agent, 10, start_pos, T)
+    a_states_rand_mean, a_states_rand_std = run_env_multi_random(
+        env, agent, 10, start_pos, T)
 
     # plot trajectories using agent states
     plot_trajectories([a_state_no_obj, a_states_rand_mean, a_states_attack],
                       ['No Object', 'Random Noise', 'Attack'], a_states_rand_std, T, eps, args.save)
-    print(f'Different trajectories plotted for scenario {args.scenario}, T = {T}, and eps = {eps}')
+    print(
+        f'Different trajectories plotted for scenario {args.scenario}, T = {T}, and eps = {eps}')
 
     # # plot steering angle. Not shown in paper. But good to have
     # plot_actions([a_no_obj, a_rand, a_attack], ['No Object', 'Random Noise', 'Attack'], T, eps, args.save)
@@ -409,23 +466,30 @@ def main():
 
     # actions error
     print('======================== Actions MSE ========================')
-    a_err_rand = np.linalg.norm((np.array(a_no_obj) - np.array(a_rand) ** 2) / T)
-    a_err_attack = np.linalg.norm((np.array(a_no_obj) - np.array(a_attack) ** 2) / T)
-    print(f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Action error random noise {a_err_rand}')
-    print(f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Action error attack {a_err_attack}')
+    a_err_rand = np.linalg.norm(
+        (np.array(a_no_obj) - np.array(a_rand) ** 2) / T)
+    a_err_attack = np.linalg.norm(
+        (np.array(a_no_obj) - np.array(a_attack) ** 2) / T)
+    print(
+        f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Action error random noise {a_err_rand}')
+    print(
+        f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Action error attack {a_err_attack}')
 
     # reward reduction
     print('======================== Reward Change ========================')
     reward_red_random = (rew_rand - rew_no_obj) * 100 / rew_no_obj
     reward_red_attack = (rew_attack - rew_no_obj) * 100 / rew_no_obj
-    print(f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Reward reduction random noise {reward_red_random}')
-    print(f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Reward reduction attack {reward_red_attack}')
+    print(
+        f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Reward reduction random noise {reward_red_random}')
+    print(
+        f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Reward reduction attack {reward_red_attack}')
 
     # attack loss. May not be present for all scenarios
     attack_loss = read_loss_from_file(args.perturbs_dir, args.scenario, T, eps)
     if attack_loss:
         print('======================== Attack Loss ========================')
-        print(f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Attack loss {attack_loss}')
+        print(
+            f'Scenario {args.scenario}, T = {T}, and eps = {eps}, Attack loss {attack_loss}')
 
 
 if __name__ == "__main__":
