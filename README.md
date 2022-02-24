@@ -48,10 +48,16 @@ for testing in next step.
 python attacks/test.py --scenario straight
 ```
 
-If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to above command. The
+If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
 above command runs all the experiments shown in the paper. Add optional argument `--save` to save the figures, videos
 in `results` folder. We already provided the results based on our perturbations in `results` folder.
 
 ### 6. Robustness experiment
 
-TODO: Write about robustness experiment
+```commandline
+python attacks/robustness.py --scenario straight
+```
+
+If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
+above command runs the robustness experiment shown in the paper. Add optional argument `--save` to save the robustness
+heatmap in `results` folder. We already provided the robustness result based on our perturbations in `results` folder.
