@@ -1,6 +1,10 @@
 # How to setup the Environment
 The installation below has been tested on Linux and MacOS computers. We were unfortunately not able to test the setup on Windows computers but are willing to help debug setups.
 
+**Please make sure to add the current repository to the PYTHONPATH**
+```
+export PYTHONPATH=<repo-dir>
+```
 # For MacOS and Linux
 It is recommended to use conda environment to run our code. You can create a conda environment with python 3.8 through the following:
 ```
