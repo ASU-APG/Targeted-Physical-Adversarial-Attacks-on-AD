@@ -21,7 +21,7 @@ We can now install the packages necessary to run the code:
 pip install -r requirements.txt
 ```
 
-Due to this issue (https://github.com/openai/gym/issues/2101) for MacOS BigSur and later, we have decided to not include pyglet in the `requirements.txt` file and separately install it: 
+Due to this [issue](https://github.com/openai/gym/issues/2101) for MacOS BigSur and later, we have decided to not include pyglet in the `requirements.txt` file and separately install it: 
 ```
 pip install pyglet==1.5.11
 ```
@@ -31,7 +31,7 @@ For some reason unknown to us, the following error pops up:
 ```
 AttributeError: module '_Box2D' has no attribute 'RAND_LIMIT_swigconstant'
 ```
-The solution that fixed the problem was to run `pip install box2d-py`; however, including box2d-py in the `requirements.txt` file produces this error again. We found that manually calling the pip install fixes the problem. If anyone understands why this error occurs, please let us know either through email (`tz98@cornell.edu` & `pbuddare@asu.edu`) or through a comment in this repository. Please install:
+The solution that fixed the problem was to run `pip install box2d-py`; however, including box2d-py in the `requirements.txt` file produces this error again. We found that manually calling the pip install fixes the problem. If anyone understands why this error occurs, please let us know either through email ([tz98@cornell.edu](tz98@cornell.edu) & [pbuddare@asu.edu](pbuddare@asu.edu)) or through a comment in this repository. Please install:
 ```
 pip install box2d-py
 ```

@@ -15,6 +15,8 @@ The end to end implementation of paper follows a series of below steps
 5. Testing the physical adversarial attack
 6. Evaluating robustness of attack to object position
 
+**Please refer to [INSTALL.md](INSTALL.md) for seting up the environment for this repository.**
+
 ### 1. Policy
 
 We used a policy obtained using Actor-Critic algorithm for which the pretrained agent is taken from
