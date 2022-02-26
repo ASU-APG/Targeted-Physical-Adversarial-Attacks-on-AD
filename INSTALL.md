@@ -31,7 +31,7 @@ For some reason unknown to us, the following error pops up:
 ```
 AttributeError: module '_Box2D' has no attribute 'RAND_LIMIT_swigconstant'
 ```
-The solution that fixed the problem was to run `pip install box2d-py`; however, including box2d-py in the `requirements.txt` file produces this error again. We found that manually calling the pip install fixes the problem. If anyone understands why this error occurs, please let us know either through email ([tz98@cornell.edu](tz98@cornell.edu) & [pbuddare@asu.edu](pbuddare@asu.edu)) or through a comment in this repository. Please install:
+The solution that fixed the problem was to run `pip install box2d-py`; however, including box2d-py in the `requirements.txt` file produces this error again. We found that manually calling the pip install fixes the problem. If anyone understands why this error occurs, please let us know either through email ([tz98@cornell.edu](mailto:tz98@cornell.edu) & [pbuddare@asu.edu](mailto:pbuddare@asu.edu)) or through a comment in this repository. Please install:
 ```
 pip install box2d-py
 ```

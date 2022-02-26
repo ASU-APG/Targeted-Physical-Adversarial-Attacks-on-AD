@@ -88,6 +88,8 @@ def load_nets():
 
 
 def main():
+    if args.scenario != 'straight':
+        args.scenario += '_turn'
     # load networks
     vae, decoder, rnn, a2c = load_nets()
     # set up parameters

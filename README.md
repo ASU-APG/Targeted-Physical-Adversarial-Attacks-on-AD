@@ -112,3 +112,14 @@ which are used in our code.
 
 - Policy - https://github.com/xtma/pytorch_car_caring
 - Dynamics model - https://github.com/ctallec/world-models
+
+## Citation
+Please cite our paper if it is used in your research:
+```
+@article{buddareddygari2021targeted,
+      title={Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns}, 
+      author={Prasanth Buddareddygari and Travis Zhang and Yezhou Yang and Yi Ren},
+      year={2021},
+      journal={arXiv preprint arXiv:2109.07723}
+}
+```
