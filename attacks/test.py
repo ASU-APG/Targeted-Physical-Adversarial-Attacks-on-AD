@@ -53,6 +53,9 @@ save_dir = f'{args.results_dir}/scenario_{args.scenario}'
 if not exists(save_dir):
     mkdir(save_dir)
 
+if args.scenario != 'straight':
+    args.scenario += '_turn'
+
 # common variables
 d_s_size_x, d_s_size_y = PERTURBATION_SIZE[0], PERTURBATION_SIZE[1]
 obj_true_loc = scenarios_object_points[args.scenario]
@@ -383,8 +386,6 @@ def plot_trajectories(a_state_list, names, std, T, eps, save):
 
 
 def main():
-    if args.scenario != 'straight':
-        args.scenario += '_turn'
     # attack parameters
     T = args.unroll_length
     eps = args.adv_bound
