@@ -40,6 +40,9 @@ parser.add_argument('--save', action='store_true',
                     help='save the results if specified')
 args = parser.parse_args()
 
+if args.scenario != 'straight':
+    args.scenario += '_turn'
+    
 # cuda and seeds
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -52,9 +55,6 @@ if use_cuda:
 save_dir = f'{args.results_dir}/scenario_{args.scenario}'
 if not exists(save_dir):
     mkdir(save_dir)
-
-if args.scenario != 'straight':
-    args.scenario += '_turn'
 
 # common variables
 d_s_size_x, d_s_size_y = PERTURBATION_SIZE[0], PERTURBATION_SIZE[1]
