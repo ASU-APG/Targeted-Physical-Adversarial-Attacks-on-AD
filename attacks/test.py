@@ -383,6 +383,8 @@ def plot_trajectories(a_state_list, names, std, T, eps, save):
 
 
 def main():
+    if args.scenario != 'straight':
+        args.scenario += '_turn'
     # attack parameters
     T = args.unroll_length
     eps = args.adv_bound
