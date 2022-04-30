@@ -1,37 +1,125 @@
-## Welcome to GitHub Pages
+# Targeted-Physical-Adversarial-Attacks-on-AD
 
-You can use the [editor on GitHub](https://github.com/ASU-APG/Targeted-Physical-Adversarial-Attacks-on-AD/edit/github-pages/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+https://arxiv.org/abs/2109.07723 (Accepted at [ICRA 2022](https://www.icra2022.org))
 
-### Markdown
+## Overview
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The end to end implementation of paper follows a series of below steps
 
-```markdown
-Syntax highlighted code block
+1. Obtaining a policy
+2. Collecting data from simulator
+3. Training dynamics model
+4. Optimizing the perturbation for physical adversarial attack
+5. Testing the physical adversarial attack
+6. Evaluating robustness of attack to object position
 
-# Header 1
-## Header 2
-### Header 3
+**Please refer to [INSTALL.md](INSTALL.md) for setting up the environment for this repository.**
 
-- Bulleted
-- List
+### 1. Policy
 
-1. Numbered
-2. List
+We used a policy obtained using Actor-Critic algorithm for which the pretrained agent is taken from
+this [repo](https://github.com/xtma/pytorch_car_caring) and modified a bit for our use.
 
-**Bold** and _Italic_ and `Code` text
+### 2. Data Collection
 
-[Link](url) and ![Image](src)
+We collect data by running the agent with pretrained + noise policy as explained in the paper. This is done using below
+commands for all three driving scenarios.
+
+#### Scenario - Straight
+
+```commandline
+python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario straight
+python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario straight
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+#### Scenario - Left Turn
 
-### Jekyll Themes
+```commandline
+python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario left_turn
+python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario left_turn
+```
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ASU-APG/Targeted-Physical-Adversarial-Attacks-on-AD/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+#### Scenario - Right Turn
 
-### Support or Contact
+```commandline
+python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario right_turn
+python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario right_turn
+```
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+**NOTE**: The data collection scripts provide multiple options to get more datasets with different policy types if
+wanted.
+
+### 3. Dynamics model
+
+Dynamics model is trained using two models (VAE and MDRNN)
+
+#### VAE
+
+```commandline
+python dynamics_model/trainvae.py --dataset scenario_straight
+```
+
+#### MDRNN
+
+```commandline
+python dynamics_model/trainmdrnn.py --dataset scenario_straight
+```
+
+**NOTE**: Change `--dataset` argument to `scenario_left_turn` and `scenario_right_turn` for other two driving scenarios
+respectively.
+
+### 4. Generate Adversarial Perturbations
+
+```commandline
+python attacks/optimize.py --scenario straight
+```
+
+To optimize for other scenarios, change scenario argument to `left_turn` and
+`right_turn` respectively.
+
+**TIP**: use `--help` to know available arguments and play around with different time steps, perturbation strength etc.
+
+The perturbations are by default saved in `attacks/perturbations` folder segregated by each driving scenario. Further,
+we are providing our optimized perturbations shown in paper under `attacks/perturbations_ours` folder to easily allow
+for testing in next step.
+
+### 5. Test Physical Adversarial Attack
+
+```commandline
+python attacks/test.py --scenario straight
+```
+
+If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
+above command runs all the experiments shown in the paper. Add optional argument `--save` to save the figures, videos
+in `results` folder. We already provided the results based on our perturbations in `results` folder.
+
+### 6. Robustness experiment
+
+```commandline
+python attacks/robustness.py --scenario straight
+```
+
+If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
+above command runs the robustness experiment shown in the paper. Add optional argument `--save` to save the robustness
+heatmap in `results` folder. We already provided the robustness result based on our perturbations in `results` folder.
+
+### Acknowledgement
+
+We would like to thank developers of below open source code for providing policy and dynamics model implementations
+which are used in our code.
+
+- Policy - https://github.com/xtma/pytorch_car_caring
+- Dynamics model - https://github.com/ctallec/world-models
+
+## Citation
+Please cite our paper if it is used in your research:
+```
+@article{buddareddygari2021targeted,
+      title={Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns}, 
+      author={Prasanth Buddareddygari and Travis Zhang and Yezhou Yang and Yi Ren},
+      year={2021},
+      journal={arXiv preprint arXiv:2109.07723}
+}
+```
