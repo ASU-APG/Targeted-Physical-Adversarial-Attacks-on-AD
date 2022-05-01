@@ -8,7 +8,7 @@ Recent studies demonstrated the vulnerability of control policies learned throug
 * We conduct experiments with **3 driving scenarios** and compared our approach with baselines to show the effectiveness of our attack.
 * We study the **robustness of the derived attacks** with respect to their relative locations to the agent, and show that moving the attack object partially out of the sight of the agent will reduce the attack effect.
 
-![Illustration]({{ site.url }}/assets/media/physical_adversarial_attack.png)
+![Illustration](assets/media/physical_adversarial_attack.png)
 
 ## Results
 
@@ -19,34 +19,34 @@ Recent studies demonstrated the vulnerability of control policies learned throug
 #### Target States
 We set target states to be outside of track for all 3 scenarios as shown in second row of below image.
 
-![Target states]({{ site.url }}/assets/media/targets.png)
+![Target states](assets/media/targets.png)
 
 #### Straight Track
-<div style="text-align: center;"><img src="{{ site.url }}/assets/media/straight.gif"/></div>
+<div style="text-align: center;"><img src="assets/media/straight.gif"/></div>
 
 #### Left Turn Track
-<div style="text-align: center;"><img src="{{ site.url }}/assets/media/left.gif"/></div>
+<div style="text-align: center;"><img src="assets/media/left.gif"/></div>
 
 #### Right Turn Track
-<div style="text-align: center;"><img src="{{ site.url }}/assets/media/right.gif"/></div>
+<div style="text-align: center;"><img src="assets/media/right.gif"/></div>
 
 #### Variable Adversarial Bound
 ##### Straight Track
-<div style="text-align: center;"><img src="{{ site.url }}/assets/media/v_straight.gif"/></div>
+<div style="text-align: center;"><img src="assets/media/v_straight.gif"/></div>
 
 ##### Left Turn Track
-<div style="text-align: center;"><img src="{{ site.url }}/assets/media/v_left.gif"/></div>
+<div style="text-align: center;"><img src="assets/media/v_left.gif"/></div>
 
 ##### Right Turn Track
-<div style="text-align: center;"><img src="{{ site.url }}/assets/media/v_right.gif"/></div>
+<div style="text-align: center;"><img src="assets/media/v_right.gif"/></div>
 
 ## Acknowledgements
 <div display="inline-block" style="text-align: center;">
-  <img src="{{ site.url }}/assets/media/acks/asu.png" style="width: 6.25rem; margin: 1rem;"/>
-  <img src="{{ site.url }}/assets/media/acks/cornell.png" style="width: 5.6rem; margin: 1rem;"/>
-  <img src="{{ site.url }}/assets/media/acks/nsf.png" style="width: 5.6rem; margin: 1rem;"/>
-  <img src="{{ site.url }}/assets/media/acks/aws.png" style="width: 6.25rem; margin: 1rem;"/>
-  <img src="{{ site.url }}/assets/media/acks/iam.png" style="width: 10.6rem; margin: 1rem;"/>
+  <img src="assets/media/acks/asu.png" style="width: 6.25rem; margin: 1rem;"/>
+  <img src="assets/media/acks/cornell.png" style="width: 5.6rem; margin: 1rem;"/>
+  <img src="assets/media/acks/nsf.png" style="width: 5.6rem; margin: 1rem;"/>
+  <img src="assets/media/acks/aws.png" style="width: 6.25rem; margin: 1rem;"/>
+  <img src="assets/media/acks/iam.png" style="width: 10.6rem; margin: 1rem;"/>
 </div>
 
 ## Citation
