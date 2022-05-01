@@ -1,123 +1,59 @@
-# Targeted-Physical-Adversarial-Attacks-on-AD
+## Abstract
 
-Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns
+Recent studies demonstrated the vulnerability of control policies learned through deep reinforcement learning against adversarial attacks, raising concerns about the application of such models to risk-sensitive tasks such as autonomous driving. Threat models for these demonstrations are limited to (1) targeted attacks through real-time manipulation of the agent's observation, and (2) untargeted attacks through manipulation of the physical environment. The former assumes full access to the agent's states/observations at all times, while the latter has no control over attack outcomes. This paper investigates the feasibility of targeted attacks through visually learned patterns placed on physical objects in the environment, a threat model that combines the practicality and effectiveness of the existing ones. Through analysis, we demonstrate that a pre-trained policy can be hijacked within a time window, e.g., performing an unintended self-parking, when an adversarial object is present. To enable the attack, we adopt an assumption that the dynamics of both the environment and the agent can be learned by the attacker. Lastly, we empirically show the effectiveness of the proposed attack on different driving scenarios, perform a location robustness test, and study the tradeoff between the attack strength and its effectiveness.
 
-https://arxiv.org/abs/2109.07723 (Accepted at [ICRA 2022](https://www.icra2022.org))
+## Approach
 
-## Overview
+* Our attack algorithm generates a **static perturbation** using a trained dynamics model that can be directly realized through an object placed in the environment to mislead the agent towards a pre-specified state within a time window.
+* We conduct experiments with **3 driving scenarios** and compared our approach with baselines to show the effectiveness of our attack.
+* We study the **robustness of the derived attacks** with respect to their relative locations to the agent, and show that moving the attack object partially out of the sight of the agent will reduce the attack effect.
 
-The end to end implementation of paper follows a series of below steps
+![Illustration]({{ site.url }}/assets/media/physical_adversarial_attack.png)
 
-1. Obtaining a policy
-2. Collecting data from simulator
-3. Training dynamics model
-4. Optimizing the perturbation for physical adversarial attack
-5. Testing the physical adversarial attack
-6. Evaluating robustness of attack to object position
+## Results
 
-**Please refer to [INSTALL.md](INSTALL.md) for setting up the environment for this repository.**
+* OpenAI Gym's <a href="https://gym.openai.com/envs/CarRacing-v0/" target="_blank">CarRacing-v0</a> environment – continuous state and action spaces.
+* Pretrained policy with Actor-Critic algorithm.
+* Dynamics model with Variational Auto Encoder and Mixture Density Recurrent Neural Networks.
 
-### 1. Policy
+#### Target States
+We set target states to be outside of track for all 3 scenarios as shown in second row of below image.
 
-We used a policy obtained using Actor-Critic algorithm for which the pretrained agent is taken from
-this [repo](https://github.com/xtma/pytorch_car_caring) and modified a bit for our use.
+![Target states]({{ site.url }}/assets/media/targets.png)
 
-### 2. Data Collection
+#### Straight Track
+<div style="text-align: center;"><img src="{{ site.url }}/assets/media/straight.gif"/></div>
 
-We collect data by running the agent with pretrained + noise policy as explained in the paper. This is done using below
-commands for all three driving scenarios.
+#### Left Turn Track
+<div style="text-align: center;"><img src="{{ site.url }}/assets/media/left.gif"/></div>
 
-#### Scenario - Straight
+#### Right Turn Track
+<div style="text-align: center;"><img src="{{ site.url }}/assets/media/right.gif"/></div>
 
-```commandline
-python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario straight
-python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario straight
-```
+#### Variable Adversarial Bound
+##### Straight Track
+<div style="text-align: center;"><img src="{{ site.url }}/assets/media/v_straight.gif"/></div>
 
-#### Scenario - Left Turn
+##### Left Turn Track
+<div style="text-align: center;"><img src="{{ site.url }}/assets/media/v_left.gif"/></div>
 
-```commandline
-python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario left_turn
-python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario left_turn
-```
+##### Right Turn Track
+<div style="text-align: center;"><img src="{{ site.url }}/assets/media/v_right.gif"/></div>
 
-#### Scenario - Right Turn
-
-```commandline
-python data_collection/generation_script.py --same-track --rollouts 1 --rootdir datasets --policy pre --scenario right_turn
-python data_collection/generation_script.py --same-track --rollouts 9999 --rootdir datasets --policy pre_noise --scenario right_turn
-```
-
-**NOTE**: The data collection scripts provide multiple options to get more datasets with different policy types if
-wanted.
-
-### 3. Dynamics model
-
-Dynamics model is trained using two models (VAE and MDRNN)
-
-#### VAE
-
-```commandline
-python dynamics_model/trainvae.py --dataset scenario_straight
-```
-
-#### MDRNN
-
-```commandline
-python dynamics_model/trainmdrnn.py --dataset scenario_straight
-```
-
-**NOTE**: Change `--dataset` argument to `scenario_left_turn` and `scenario_right_turn` for other two driving scenarios
-respectively.
-
-### 4. Generate Adversarial Perturbations
-
-```commandline
-python attacks/optimize.py --scenario straight
-```
-
-To optimize for other scenarios, change scenario argument to `left_turn` and
-`right_turn` respectively.
-
-**TIP**: use `--help` to know available arguments and play around with different time steps, perturbation strength etc.
-
-The perturbations are by default saved in `attacks/perturbations` folder segregated by each driving scenario. Further,
-we are providing our optimized perturbations shown in paper under `attacks/perturbations_ours` folder to easily allow
-for testing in next step.
-
-### 5. Test Physical Adversarial Attack
-
-```commandline
-python attacks/test.py --scenario straight
-```
-
-If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
-above command runs all the experiments shown in the paper. Add optional argument `--save` to save the figures, videos
-in `results` folder. We already provided the results based on our perturbations in `results` folder.
-
-### 6. Robustness experiment
-
-```commandline
-python attacks/robustness.py --scenario straight
-```
-
-If you want to use our perturbations, append argument `--perturbs-dir attacks/perturbations_ours` to the command. The
-above command runs the robustness experiment shown in the paper. Add optional argument `--save` to save the robustness
-heatmap in `results` folder. We already provided the robustness result based on our perturbations in `results` folder.
-
-### Acknowledgement
-
-We would like to thank developers of below open source code for providing policy and dynamics model implementations
-which are used in our code.
-
-- Policy - https://github.com/xtma/pytorch_car_caring
-- Dynamics model - https://github.com/ctallec/world-models
+## Acknowledgements
+<div display="inline-block" style="text-align: center;">
+  <img src="{{ site.url }}/assets/media/acks/asu.png" style="width: 6.25rem; margin: 1rem;"/>
+  <img src="{{ site.url }}/assets/media/acks/cornell.png" style="width: 5.6rem; margin: 1rem;"/>
+  <img src="{{ site.url }}/assets/media/acks/nsf.png" style="width: 5.6rem; margin: 1rem;"/>
+  <img src="{{ site.url }}/assets/media/acks/aws.png" style="width: 6.25rem; margin: 1rem;"/>
+  <img src="{{ site.url }}/assets/media/acks/iam.png" style="width: 10.6rem; margin: 1rem;"/>
+</div>
 
 ## Citation
-Please cite our paper if it is used in your research:
+Please cite our paper if it is used in your research.
 ```
 @article{buddareddygari2021targeted,
-      title={Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns}, 
+      title={Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns},
       author={Prasanth Buddareddygari and Travis Zhang and Yezhou Yang and Yi Ren},
       year={2021},
       journal={arXiv preprint arXiv:2109.07723}

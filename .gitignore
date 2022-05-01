@@ -138,3 +138,7 @@ datasets
 
 # weight files
 dynamics_model/params
+
+# webpage gem related files
+Gemfile.lock
+docs/_site/

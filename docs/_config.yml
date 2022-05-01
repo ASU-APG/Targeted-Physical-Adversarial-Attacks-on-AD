@@ -1,1 +1,20 @@
 theme: jekyll-theme-cayman
+title: Targeted Attack on Deep RL-based Autonomous Driving with Learned Visual Patterns
+description: To appear at ICRA 2022
+paper_link: https://arxiv.org/abs/2109.07723
+affiliations:
+  affiliation1: Arizona State University
+  affiliation2: Cornell University
+authors:
+  author1:
+    name: Prasanth Buddareddygari
+    url: https://prasanth5reddy.github.io
+  author2:
+    name: Travis Zhang
+    url: https://zhangtravis.github.io/
+  author3:
+    name: Yezhou Yang
+    url: https://yezhouyang.engineering.asu.edu
+  author4:
+    name: Yi Ren
+    url: https://designinformaticslab.github.io/
